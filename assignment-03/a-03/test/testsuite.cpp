@@ -9,5 +9,7 @@ int main(int argc, char * argv[])
   // Run Tests
   int ret = RUN_ALL_TESTS();
 
+  std::cout << "MUCH SUCCESS!" << std::endl;
+
   return ret;
 }

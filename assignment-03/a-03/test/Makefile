@@ -1,12 +1,14 @@
-
 CC=clang++
 CFLAGS=--std=c++11 -Wall -Wextra -pedantic -g
-LDFLAGS=-lpthread -L${GTEST_BASE}/lib -lgtest
+LDFLAGS=-lpthread -L${GTEST_BASE}/lib -lgtest -L./
 
 INCLUDES=-I${GTEST_BASE}/include -I../
 
 OBJS = testsuite.o \
-			 measurements_test.o
+			 list_test.o  
+
+                         #measurements_test.o \
+                         list_test.o
 
 .DEFAULT: all
 all: $(OBJS) testsuite.bin
@@ -14,10 +16,10 @@ all: $(OBJS) testsuite.bin
 run: clean testsuite.bin
 	./testsuite.bin
 
-%.o: %.c
-	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+#%.o: %.c
+#	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
-%.o: %.cc
+%.o: %.cpp
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 %.bin: $(OBJS)
