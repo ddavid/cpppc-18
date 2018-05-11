@@ -67,13 +67,40 @@ TEST_F(ListTest, ListConcept)
 
   for (; viter != vend; ++viter) {
     *viter += 100;
-    std::cout << *viter << std::endl;
+    //std::cout << *viter << std::endl;
   }
 
   LOG_MESSAGE("ListTest.ListConcept: list__assign(3, 101)");
   list l_empty;
   l_empty.assign(3, 101);
 
+  LOG_MESSAGE("ListTest.StandardConcept: list__default_construction");
+  list l_ctr(10);
+
+  int counter = 0;
+  auto iter   = l_ctr.begin();
+  while(iter != l_ctr.end())
+  {
+    ++iter;
+    ++counter;
+  }
+  ASSERT_EQ(10, counter);
+  ASSERT_EQ(10, l_ctr.size());
+
+  LOG_MESSAGE("ListTest.ListConcept: list__insert( list__begin, list__end)");
+  list l_insert;
+  l_insert.insert(l2.begin(), l2.end());
+
+  ASSERT_EQ(true, l_insert == l2);
+
+  LOG_MESSAGE("ListTest.ListConcept: list__insert( list__begin, list__end)");
+  list l_in;
+  l_in.insert(20);
+  list l_temp;
+  l_temp.push_front(20);
+
+  ASSERT_EQ(1, l_in.size());
+  ASSERT_EQ(true, l_in == l_temp);
 
   ASSERT_EQ(true, l2 == l_empty);
   ASSERT_EQ(0, l2.empty());

@@ -3,8 +3,6 @@
 
 #include <vector>
 #include <cmath>
-#include <forward_list>
-#include "lazy_list.h"
 
 namespace cpppc {
 
@@ -17,8 +15,8 @@ class Measurements
 
   typedef       T &                                  reference;
   typedef const T &                                  const_reference;
-  typedef typename std::forward_list<T>::iterator          iterator;
-  typedef typename std::forward_list<T>::const_iterator    const_iterator;
+  typedef typename std::vector<T>::iterator          iterator;
+  typedef typename std::vector<T>::const_iterator    const_iterator;
   typedef size_t                                     size_type;
 
 public:
@@ -88,14 +86,9 @@ public:
 
     void clear() { _values.clear(); }
 
-    void sort() { _values.sort(); }
+    //void sort() { _values.sort(); }
 
-    void insert( value_t val ) { _values.push_front(val); }
-    /*
-    void insert( const_iterator pos, iterator first, iterator last )
-    {
-        _values.insert(pos, first, last);
-    }*/
+    void insert( value_t val ) { _values.push_back(val); }
 
     void insert( iterator first, iterator last )
     {
@@ -107,7 +100,7 @@ public:
         this->sort();
         int index = std::floor(_values.size() / 2);
         if ( this->begin() == this->end()) { return 0.0; }
-        else return _values[index];   
+        else return _values.at( index );   
     }
 
     double mean()
@@ -131,43 +124,22 @@ public:
         return std::sqrt(this->variance());
     }
 
-    double naive_variance()
+    double variance()
     {
-        int acc = 0.0;
+        int acc = 0;
         double mean = this->mean();
         iterator viter = _values.begin();
         while( viter != _values.end())
         { 
-            acc += std::pow((*viter - mean), 2);
-            std::cout << acc << std::endl;
+            acc += std::pow(*viter - mean, 2);
             viter++;
         }
         return (acc / this->size());
     }
 
-    double variance()
-    {
-        if ( this->size() < 2 ) return 0.0;
-        else
-        {
-            double k = _values.front();
-            double n, ex, ex2;
-            n = ex = ex2 = 0.0;
-            iterator viter = this->begin();
-            while( viter != this->end() )
-            {
-                ++n;
-                ex  += *viter - k;
-                ex2 += std::pow((*viter - k), 2);
-                viter++;
-            }
-            return (ex2 - (ex * ex) / n) / n;
-        }
-    }
-
 private:
 
-  list<T> _values;
+  std::vector<T> _values;
 
 };
 

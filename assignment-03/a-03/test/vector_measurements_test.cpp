@@ -35,7 +35,7 @@ TEST_F(MeasurementsTest, SequenceContainerConcept)
   ASSERT_EQ(m1, m1);
 
   ASSERT_EQ(m1.size(), 0);
-  ASSERT_EQ(m1.end(), m1.begin());
+  ASSERT_EQ(m1.end() - m1.begin(), 0);
   ASSERT_TRUE(m1.empty());
 
   m1.insert(10);
@@ -45,14 +45,14 @@ TEST_F(MeasurementsTest, SequenceContainerConcept)
   print_range("m1", m1.begin(), m1.end());
 
   ASSERT_EQ(m1.size(), 3);
-  //ASSERT_EQ(m1.end() - m1.begin(), 3);
+  ASSERT_EQ(m1.end() - m1.begin(), 3);
 
-  ASSERT_EQ(m1[0], 30);
+  ASSERT_EQ(m1[0], 10);
   ASSERT_EQ(m1[1], 100);
-  ASSERT_EQ(m1[2], 10);
+  ASSERT_EQ(m1[2], 30);
 
   Measurements<int> m2;
-  std::forward_list<int>  v({ 20, 40, 100 });
+  std::vector<int>  v({ 20, 40, 100 });
   m2.insert(v.begin(), v.end());
   ASSERT_EQ(m2, m2);
   ASSERT_EQ(m2.size(), 3);
@@ -61,15 +61,15 @@ TEST_F(MeasurementsTest, SequenceContainerConcept)
 
   m2[1] = 200;
   ASSERT_EQ(m2[1], 200);
-  //ASSERT_EQ(*(m2.begin() + 1), 200);
+  ASSERT_EQ(*(m2.begin() + 1), 200);
 
   print_range("m2'", m2.begin(), m2.end());
 
   Measurements<int> m3(m2);
   ASSERT_EQ(m2, m3);
 
-  ASSERT_EQ(100,  m3.front());
-  ASSERT_EQ(20, m3.back());
+  ASSERT_EQ(20,  m3.front());
+  ASSERT_EQ(100, m3.back());
 
   m3 = m1;
   ASSERT_EQ(m1, m3);
@@ -84,7 +84,7 @@ TEST_F(MeasurementsTest, MeasurementsConcept)
   ASSERT_EQ(0, m.mean());
   ASSERT_EQ(0, m.median());
 
-  std::forward_list<int> v1 = { 10, 22, 25, 24, 26 };
+  std::vector<int> v1 = { 10, 22, 25, 24, 26 };
   m.insert(v1.begin(), v1.end());
 
   print_range("m", m.begin(), m.end());
@@ -105,7 +105,7 @@ TEST_F(MeasurementsTest, MeasurementsConcept)
               m.sigma());
 
   m.clear();
-  std::forward_list<int> v2 = { 1, 2, 3, 4, 3, 2, 1 };
+  std::vector<int> v2 = { 1, 2, 3, 4, 3, 2, 1 };
   m.insert(v2.begin(), v2.end());
 
   print_range("m", m.begin(), m.end());
