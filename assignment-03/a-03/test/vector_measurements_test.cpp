@@ -3,9 +3,9 @@
  *                       DO NOT MODIFIY THIS FILE                           *
  * -------------------------------------------------------------------------*/
 
-#include "measurements_test.h"
+#include "vector_measurements_test.h"
 
-#include <solution/measurements.h>
+#include <solution/vector_measurements.h>
 #include <gtest/gtest.h>
 
 #include <cmath>
@@ -14,7 +14,7 @@
 #include <string>
 
 
-using cpppc::Measurements;
+using cpppc::VectorMeasurements;
 
 template <typename Iter>
 void print_range(
@@ -29,9 +29,9 @@ void print_range(
   LOG_MESSAGE("%*s: {%s}", 10, name.c_str(), oss.str().c_str());
 }
 
-TEST_F(MeasurementsTest, SequenceContainerConcept)
+TEST_F(VectorMeasurementsTest, VectorSequenceContainerConcept)
 {
-  Measurements<int> m1;
+  VectorMeasurements<int> m1;
   ASSERT_EQ(m1, m1);
 
   ASSERT_EQ(m1.size(), 0);
@@ -51,7 +51,7 @@ TEST_F(MeasurementsTest, SequenceContainerConcept)
   ASSERT_EQ(m1[1], 100);
   ASSERT_EQ(m1[2], 30);
 
-  Measurements<int> m2;
+  VectorMeasurements<int> m2;
   std::vector<int>  v({ 20, 40, 100 });
   m2.insert(v.begin(), v.end());
   ASSERT_EQ(m2, m2);
@@ -65,7 +65,7 @@ TEST_F(MeasurementsTest, SequenceContainerConcept)
 
   print_range("m2'", m2.begin(), m2.end());
 
-  Measurements<int> m3(m2);
+  VectorMeasurements<int> m3(m2);
   ASSERT_EQ(m2, m3);
 
   ASSERT_EQ(20,  m3.front());
@@ -77,9 +77,9 @@ TEST_F(MeasurementsTest, SequenceContainerConcept)
   print_range("m3", m3.begin(), m3.end());
 }
 
-TEST_F(MeasurementsTest, MeasurementsConcept)
+TEST_F(VectorMeasurementsTest, VectorMeasurementsConcept)
 {
-  Measurements<int> m;
+  VectorMeasurements<int> m;
 
   ASSERT_EQ(0, m.mean());
   ASSERT_EQ(0, m.median());

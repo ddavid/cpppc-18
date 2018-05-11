@@ -1,5 +1,5 @@
-#ifndef CPPPC__A03__MEASUREMENTS_H__INCLUDED
-#define CPPPC__A03__MEASUREMENTS_H__INCLUDED
+#ifndef CPPPC__A03__VECTOR_MEASUREMENTS_H__INCLUDED
+#define CPPPC__A03__VECTOR_MEASUREMENTS_H__INCLUDED
 
 #include <vector>
 #include <cmath>
@@ -7,10 +7,10 @@
 namespace cpppc {
 
 template <typename T>
-class Measurements
+class VectorMeasurements
 {
 
-  typedef Measurements<T>                            self_t;
+  typedef VectorMeasurements<T>                            self_t;
   typedef T                                          value_t;
 
   typedef       T &                                  reference;
@@ -21,12 +21,12 @@ class Measurements
 
 public:
 
-    Measurements() = default;
+    VectorMeasurements() = default;
 
-    Measurements( size_type size ) : _values( size )
+    VectorMeasurements( size_type size ) : _values( size )
     {}
 
-    ~Measurements() = default;
+    ~VectorMeasurements() = default;
 
     self_t & operator=( const_reference other )
     {
@@ -90,21 +90,26 @@ public:
 
     void insert( value_t val ) { _values.push_back(val); }
 
+    void insert( const_iterator pos, iterator first, iterator last )
+    {
+        _values.insert( pos, first, last );
+    }
+
     void insert( iterator first, iterator last )
     {
-        _values.insert( first, last );
+        _values.insert( this->end(), first, last );
     }
 
     value_t median()
     {
-        this->sort();
+        std::sort(this->begin(), this->end());
         int index = std::floor(_values.size() / 2);
         if ( this->begin() == this->end()) { return 0.0; }
         else return _values.at( index );   
     }
 
     double mean()
-    {
+    {   
         double acc = 0.0;
         iterator viter = _values.begin();
         if(viter == _values.end()) { return acc; }
@@ -124,17 +129,38 @@ public:
         return std::sqrt(this->variance());
     }
 
-    double variance()
+    double naive_variance()
     {
-        int acc = 0;
+        int acc = 0.0;
         double mean = this->mean();
         iterator viter = _values.begin();
         while( viter != _values.end())
         { 
-            acc += std::pow(*viter - mean, 2);
+            acc += std::pow((*viter - mean), 2);
+            std::cout << acc << std::endl;
             viter++;
         }
         return (acc / this->size());
+    }
+
+    double variance()
+    {
+        if ( this->size() < 2 ) return 0.0;
+        else
+        {
+            double k = _values.front();
+            double n, ex, ex2;
+            n = ex = ex2 = 0.0;
+            iterator viter = this->begin();
+            while( viter != this->end() )
+            {
+                ++n;
+                ex  += *viter - k;
+                ex2 += std::pow((*viter - k), 2);
+                viter++;
+            }
+            return (ex2 - (ex * ex) / n) / n;
+        }
     }
 
 private:
@@ -145,4 +171,4 @@ private:
 
 } // namespace cpppc
 
-#endif // CPPPC__A03__MEASUREMENTS_H__INCLUDED
+#endif // CPPPC__A03__VECTOR_MEASUREMENTS_H__INCLUDED
