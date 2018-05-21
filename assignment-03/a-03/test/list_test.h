@@ -2,7 +2,7 @@
 #define CPPPC__01__LIST_TEST_H__INCLUDED
 
 #include <gtest/gtest.h>
-#include <solution/lazy_list.h>
+#include <solution/list.h>
 #include "TestBase.h"
 
 class ListTest : public ::testing::Test {

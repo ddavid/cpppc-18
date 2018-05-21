@@ -6,7 +6,8 @@ INCLUDES=-I${GTEST_BASE}/include -I../
 
 OBJS = testsuite.o \
 			 list_test.o \
-			 vector_measurements_test.o \
+			 
+			 #vector_measurements_test.o \
 			 measurements_test.o
 
 .DEFAULT: all

@@ -4,7 +4,7 @@
 #include <vector>
 #include <cmath>
 #include <forward_list>
-#include "lazy_list.h"
+#include "list.h"
 
 namespace cpppc {
 
