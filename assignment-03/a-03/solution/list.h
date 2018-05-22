@@ -1,6 +1,8 @@
 #ifndef CPPPC__A03__LIST__INCLUDED
 #define CPPPC__A03__LIST__INCLUDED
 
+#include <test/TestBase.h>
+
 #include <iterator>
 
 namespace cpppc {
@@ -33,10 +35,16 @@ namespace cpppc {
        : list_node(nullptr)
        , value(ValueT())
        {}
+
+       list_node(list_node * node)
+       : value(ValueT())
+       { list_node = node; }
+
        list_node(list_node * node, ValueT val)
        : list_node(node)
        , value(val)
-       {}*/
+       {}
+       */
     };
 
     public:
@@ -64,34 +72,45 @@ namespace cpppc {
        typedef const value_type     & const_reference;
     
     public:
-       iterator() = default;
+       iterator() = delete;
 
+       
        iterator(const list_t & list, list_node_t * node)
        : _list(list)
        , _list_node(node)
-       {}
+       {
+        LOG_MESSAGE("Custom constructed Iterator");
+        std::cout << _list_node->next  << std::endl;
+        std::cout << _list_node->value << std::endl;
+       }
 
        iterator(const iterator & other)
        : _list(other._list)
        , _list_node(other._list_node)
-       {}
+       {
+        //LOG_MESSAGE("Copy constructed Iterator");
+       }
 
        ~iterator()
        {
-         std::free(_list_node);
+         //std::free(_list_node);
        }
 
        self_t & operator=(const self_t & rhs)
        {
         // Identitätsvergleich
-        if(this != rhs)
+        if(this != &rhs)
         {
+          std::cout << "Not identical" << std::endl;
           if(_list != rhs._list)
           {
+            std::cout << "Different Lists" << std::endl;
             _list = rhs._list;
           }
+          std::cout << "Trying to assign node" << std::endl;
           _list_node = rhs._list_node;
         }
+        std::cout << "Welp" << std::endl;
         return *this;
        }
 
@@ -115,17 +134,21 @@ namespace cpppc {
        }
 
        bool operator==(const self_t & rhs) {
+         LOG_MESSAGE("WUT");
          return  (this               == &rhs || // identity
-                 ( _list             == rhs._list &&
+                 (_list_node         == rhs._list_node)
+                 /*( _list             == rhs._list &&
                    _list_node->next  == rhs._list_node->next &&
-                   _list_node->value == rhs._list_node->value));
+                   _list_node->value == rhs._list_node->value)*/);
        }
 
        const bool operator==(const self_t & rhs) const {
+         LOG_MESSAGE("WOT");
          return  (this               == &rhs || // identity
-                 ( _list             == rhs._list &&
+                 ( _list_node        == rhs._list_node)
+                 /*( _list             == rhs._list &&
                    _list_node->next  == rhs._list_node->next &&
-                   _list_node->value == rhs._list_node->value));
+                   _list_node->value == rhs._list_node->value)*/);
        }
 
        bool operator!=(const self_t & rhs) { return !(this->operator==(rhs));}
@@ -134,7 +157,7 @@ namespace cpppc {
 
     private:
       list_t            _list;
-      list_node_t     * _list_node;
+      list_node_t     * _list_node = nullptr;
     };
 
     typedef list<ValueT, default_value>         self_t;
@@ -158,30 +181,35 @@ namespace cpppc {
         *iter = { default_value };
       }
       */
-      delete(_head);
-      delete(_tail);
+      delete _head;
+      delete _tail;
     }
 
     list(const self_t & other)
     : _head(other._head)
     , _tail(other._tail)
     {
-      list_iterator l_iter(*this, _head);
-      list_iterator iter(other.begin());
-      while(iter != other.end())
+      LOG_MESSAGE("Starting List Copy Constructor");
+      list_node * o_head = other._head;
+      list_node * tmp    = _head;
+      while(o_head != other._tail)
       {
-        iter++;
-        l_iter++;
-        *l_iter = *iter;
+        o_head = o_head->next;
+        _head->next = new list_node{_head, o_head->value};
+        _head  = _head->next;
       }
+      _head = tmp;
+      //std::free(tmp);
+      //std::free(o_head);
     }
 
     self_t & operator=(const self_t & rhs)
     {
+      LOG_MESSAGE("Copy Assignment");
       // Identitätsvergleich
       if( this != &rhs )
       {
-        if( *_head != *_tail )
+        if( _head != _tail )
         {
           this->clear();
         }
@@ -196,20 +224,22 @@ namespace cpppc {
       // Identitätsvergleich
       if( this != &rhs )
       {
-        list_iterator l_iter(this->begin());
-        list_iterator r_iter(rhs.begin());
+        std::cout << "Iterators not identical" << std::endl;
+        list_iterator l_iter = this->begin();
+        list_iterator r_iter = rhs.begin();
+        std::cout << "Iterators constructed" << std::endl;
         while( l_iter != this->end())
         {
-          l_iter++;
-          r_iter++;
-          if(l_iter != r_iter)
+          if((*l_iter != *r_iter) || (r_iter == rhs.end()))
           {
             return false;
           }
+          ++l_iter;
+          ++r_iter;         
         }
         return true;
-      }
-      return true;
+      } 
+      else return true;
     }
     /*
     const bool operator==(const self_t & rhs) const
@@ -252,8 +282,20 @@ namespace cpppc {
 
     void push_front(const value_type & val)
     {
-      list_node * new_front = new list_node{ _head, val }; 
+      list_node * new_front = new list_node{ _head, val };
+      LOG_MESSAGE("Created new list_node: ");
       _head = new_front;
+    }
+
+    const value_type & front() const
+    {
+      return _head->value;
+    }
+
+    // Dirty test to see if push_front() works
+    list_node * next() const
+    {
+      return _head->next;
     }
 
     void clear()
@@ -278,7 +320,7 @@ namespace cpppc {
 
     //list_node       * _front = new list_node
     list_node        * _head  = new list_node{ nullptr, default_value };
-    const list_node  * _tail  = new list_node{ nullptr, default_value };
+    list_node        * _tail  = new list_node{ nullptr, default_value };
 
     // self_t * this
 
