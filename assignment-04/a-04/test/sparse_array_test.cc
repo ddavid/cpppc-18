@@ -11,7 +11,7 @@
 #include <array>
 
 // you might want to set this to 1 for debugging
-constexpr int NMULT = 100000;
+constexpr int NMULT = 1;
 
 using namespace cpppc;
 
