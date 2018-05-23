@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <functional>
+#include <boost/iterator/transform_iterator.hpp>
 
 template<typename ValueT>
 class lazy_sequence
@@ -13,22 +14,54 @@ public:
   using iterator  = typename std::vector<std::function<value_t(value_t)>>::iterator;
   using size_type = std::size_t;
 
+/*
+  class lazy_iterator : public std::iterator<
+      std::random_access_iterator_tag
+    , value_t
+    , ptrdiff_t
+    , value_t *
+    , value_t >
+  {
+    using lazy_seq_t = lazy_sequence<ValueT>;
+    using self_t     = lazy_seq_t::lazy_iterator;
+    using value_t    = ValueT;
+  public:
+    lazy_iterator()
+
+  private:
+    size_t _pos;
+    value_t val; 
+  };
+*/
+
   lazy_sequence() = delete;
 
-  lazy_sequence(int count, std::function<value_t(value_t)> fun)
-  : _generator(count, fun)
+  lazy_sequence(int count)
+  : _generator(count)
+  , _functor([](value_t val)-> value_t {return val;})
   {}
 
-  value_t operator[](size_type pos) { return _generator[pos](pos);}
+  /*
+  lazy_sequence(int count, std::function<value_t(value_t)>)
+  : _generator(std::enumerate(0,count))
+  */
+  
+  lazy_sequence(int count, value_t val, std::function<value_t(value_t)> fun)
+  : _generator(count, val)
+  , _functor(fun)
+  {}
 
-  iterator begin() { return _generator.begin();}
+  value_t operator[](size_type pos) { return _functor(_generator[pos]);}
 
-  const iterator end() const { return _generator.end();}
+  auto begin() { return boost::make_transform_iterator(_generator.begin(), _functor);}
+
+  auto end()  { return boost::make_transform_iterator(_generator.end(), _functor);}
 
   size_type size() { return _generator.size();} 
 
 private:
-  std::vector<std::function<value_t(value_t)>> _generator;
+  std::vector<value_t>              _generator;
+  std::function<value_t(value_t)>   _functor;
 
 };
 
