@@ -26,6 +26,16 @@ class list
 
   class list_iterator
   {
+    struct iterator_traits 
+    {
+      typedef std::forward_iterator_tag   iterator_category;
+      typedef ValueT                      value_type;
+      typedef std::ptrdiff_t              difference_type;
+      typedef difference_type             distance_type;
+      typedef value_type                * pointer;
+      typedef value_type                & reference;
+    };
+
     typedef
          list<ValueT, default_value>
          list_t;
@@ -38,7 +48,7 @@ class list
          list_t::list_iterator
          self_t;
 
-    using value_type = ValueT;
+    using value_type = typename list_iterator::iterator_traits::value_type;
 
   public:
 
@@ -66,14 +76,12 @@ class list
       return *this;
     }
 
-    /*
     self_t operator++(int)
     {
-      self_t old(*(*this));
+      self_t old = *this;
       _node = _node->next;
       return old;
     }
-    */
 
     bool operator==(const self_t & other) const
     {
