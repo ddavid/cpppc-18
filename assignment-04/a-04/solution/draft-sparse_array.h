@@ -16,7 +16,9 @@ public:
     using value_t         = T;
     using self_t          = proxy_reference;
     using const_reference = const value_t &;
+
   public:
+    
     proxy_reference() = delete;
     proxy_reference(sparse_array_t & sa, index_t offset)
       : _sa(sa), _index(offset)

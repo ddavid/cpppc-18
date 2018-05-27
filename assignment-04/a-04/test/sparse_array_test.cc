@@ -21,8 +21,8 @@ TEST_F(SparseArrayTest, StandardConcept)
   constexpr size_t N = 1000 * NMULT;
 
   LOG_MESSAGE("SparseArrayTest.StandardConcept: default ctor");
-  sparse_array<int, N> sa1 { };
-  sparse_array<int, N> sa2 { };
+  sparse_array<int, N> sa1; //{ };
+  sparse_array<int, N> sa2; //{ };
 
   LOG_MESSAGE("SparseArrayTest.StandardConcept: ==");
   ASSERT_EQ(sa1, sa1);
@@ -30,6 +30,10 @@ TEST_F(SparseArrayTest, StandardConcept)
 
   ASSERT_EQ(N, sa1.size());
   ASSERT_EQ(N, sa2.size());
+
+  int test = (sa1 == sa2) ? 10 : 0;
+
+  std::cout << test << std::endl;
 
   LOG_MESSAGE("MADE IT THIS FAR");
 
