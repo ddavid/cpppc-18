@@ -1,7 +1,7 @@
 
 #include "sparse_array_test.h"
 
-#include <solution/sparse_array.h>
+#include <solution/draft-sparse_array.h>
 
 #include <gtest/gtest.h>
 
@@ -31,15 +31,22 @@ TEST_F(SparseArrayTest, StandardConcept)
   ASSERT_EQ(N, sa1.size());
   ASSERT_EQ(N, sa2.size());
 
+  LOG_MESSAGE("MADE IT THIS FAR");
+
   sa1[400] = 44;
   sa1[500] = 55;
 
+  ASSERT_EQ(44, sa1[400]);
+  ASSERT_EQ(55, sa1[500]);
+
   LOG_MESSAGE("SparseArrayTest.StandardConcept: =");
-  sa2 = sa1;
+  LOG_MESSAGE("OH WHY");
   ASSERT_EQ(sa1, sa2);
 
   ASSERT_EQ(44, sa2[400]);
   ASSERT_EQ(55, sa2[500]);
+
+  LOG_MESSAGE("SparseArrayTest.StandardConcept: Copy Constructor");
 
   sparse_array<int, N> sa3(sa2);
   ASSERT_EQ(sa1, sa3);
@@ -52,6 +59,8 @@ TEST_F(SparseArrayTest, RandomAccess)
   constexpr int N = 840 * NMULT;
   sparse_array<int, N> sa;
 
+  LOG_MESSAGE("Test");
+  
   auto it = sa.begin() + 621;
 
   *it  = 123;
@@ -61,7 +70,7 @@ TEST_F(SparseArrayTest, RandomAccess)
   *it  = 2340;
   ASSERT_EQ(it, std::find(sa.begin(), sa.end(), 2340));
 }
-
+/*
 TEST_F(SparseArrayTest, ArrayInterface)
 {
   LOG_MESSAGE("SparseArrayTest.ArrayInterface");
@@ -130,4 +139,4 @@ TEST_F(SparseArrayTest, ArrayInterface)
   LOG_MESSAGE("SparseArrayTest.ArrayInterface: sa2 = { %s }",
               range_to_string(sa2.begin(), sa2.begin() + 16).c_str());
 }
-
+*/

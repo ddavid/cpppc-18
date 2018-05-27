@@ -12,7 +12,7 @@
 template <class Iter>
 inline Iter histogram(Iter first, Iter last) {
     typedef typename std::iterator_traits<Iter>::value_type      value_t;
-    typedef typename std::iterator_traits<Iter>::difference_type index_t;
+    //typedef typename std::iterator_traits<Iter>::difference_type index_t;
 
     if( first != last )
     {
