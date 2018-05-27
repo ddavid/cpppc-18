@@ -93,6 +93,9 @@ class list
   typedef ValueT                                  value_type;
   typedef typename self_t::list_iterator          list_iterator;
   typedef const typename self_t::list_iterator    const_list_iterator;
+  typedef value_type                            & reference;
+  typedef const value_type                      & const_reference;
+
 
 public:
 
@@ -139,24 +142,61 @@ public:
     }
   }
 
+  // Move Constructor
+  list(self_t && other)
+  : _head(other._head)
+  , _tail(other._tail)
+  {
+    other._head = other._tail = nullptr;
+  }
+
   // Copy Assignment
   self_t & operator=(const self_t & other)
   {
-    if(!this->empty())
+    // Identity
+    if(this != &other)
     {
-      while(_head)
+      // Clean up *this
+      if(!this->empty())
       {
-        list_node * tmp = _head->next;
-        delete _head;
-        _head = tmp;
+        while(_head)
+        {
+          list_node * tmp = _head->next;
+          delete _head;
+          _head = tmp;
+        }
+      }
+      // Copy contents of other into *this
+      list_iterator iter = other.begin();
+      while(iter != other.end()) 
+      { 
+        list_node * tmp = new list_node(*iter);
+        _tail = (_head ? _tail->next : _head ) = tmp; 
+        ++iter; 
       }
     }
-    list_iterator iter = other.begin();
-    while(iter != other.end()) 
-    { 
-      list_node * tmp = new list_node(*iter);
-      _tail = (_head ? _tail->next : _head ) = tmp; 
-      ++iter; 
+    return *this;
+  }
+
+  // Move Assignment
+  self_t & operator=(self_t && other)
+  {
+    if(this != &other)
+    {
+      // Clean up *this
+      if(!this->empty())
+      {
+        while(_head)
+        {
+          list_node * tmp = _head->next;
+          delete _head;
+          _head = tmp;
+        }
+      }
+      _head = other._head;
+      _tail = other._tail;
+
+      other._head = other._tail = nullptr;
     }
     return *this;
   }
@@ -164,13 +204,13 @@ public:
   self_t & assign(int count, value_type val)
   {
     this->clear();
-    while( count > 0 ) { this->push_front( val ); --count;}
+    while( count > 0 ) { count--; this->push_front( val );}
     return *this;
   }
 
   //------- El Access -------//
   
-  const value_type & front() const { return _head->value; }
+  const_reference front() const { return _head->value; }
   
   //------- Iterators -------//
   
