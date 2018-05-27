@@ -143,5 +143,8 @@ TEST_F(ListTest, ListConcept)
   ASSERT_EQ(0, l1.empty());
   ASSERT_EQ(0, l_ass.empty());
 
+  typename std::iterator_traits<list::list_iterator>::value_type val(10);
+  std::cout << val << std::endl;
+
   //delete vcopy;
 }

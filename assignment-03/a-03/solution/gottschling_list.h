@@ -26,15 +26,6 @@ class list
 
   class list_iterator
   {
-    struct iterator_traits 
-    {
-      typedef std::forward_iterator_tag   iterator_category;
-      typedef ValueT                      value_type;
-      typedef std::ptrdiff_t              difference_type;
-      typedef difference_type             distance_type;
-      typedef value_type                * pointer;
-      typedef value_type                & reference;
-    };
 
     typedef
          list<ValueT, default_value>
@@ -48,9 +39,13 @@ class list
          list_t::list_iterator
          self_t;
 
-    using value_type = typename list_iterator::iterator_traits::value_type;
+public:
 
-  public:
+    using value_type        = ValueT;
+    using difference_type   = std::ptrdiff_t;
+    using pointer           = value_type *;
+    using reference         = value_type &;
+    using iterator_category = std::forward_iterator_tag;
 
     list_iterator()
     : _node(0)
@@ -95,7 +90,10 @@ class list
 
     private:
       list_node_t * _node;
+
   };
+
+public:
 
   typedef list<ValueT, default_value>             self_t;
   typedef ValueT                                  value_type;
@@ -103,9 +101,6 @@ class list
   typedef const typename self_t::list_iterator    const_list_iterator;
   typedef value_type                            & reference;
   typedef const value_type                      & const_reference;
-
-
-public:
 
   list()
   : _head(0)
