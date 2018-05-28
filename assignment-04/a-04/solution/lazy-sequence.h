@@ -1,68 +1,107 @@
 #ifndef CPPPC__S04__LAZY_SEQUENCE_H__INCLUDED
 #define CPPPC__S04__LAZY_SEQUENCE_H__INCLUDED
 
-#include <vector>
 #include <functional>
-#include <boost/iterator/transform_iterator.hpp>
+#include <iostream>
 
-template<typename ValueT>
-class lazy_sequence
+namespace cpppc
 {
-public:
-  using value_t   = ValueT;
-  using self_t    = lazy_sequence<value_t>;
-  using iterator  = typename std::vector<std::function<value_t(value_t)>>::iterator;
-  using size_type = std::size_t;
 
-/*
-  class lazy_iterator : public std::iterator<
-      std::random_access_iterator_tag
-    , value_t
-    , ptrdiff_t
-    , value_t *
-    , value_t >
+template <class T>
+class lazy_sequence {
+
+public:
+
+    using self_t          = lazy_sequence<T>;
+    using index_t         = int;
+    using value_t         = T;
+    using reference       = T &;
+    using const_reference = const reference;
+
+  class iterator
   {
-    using lazy_seq_t = lazy_sequence<ValueT>;
-    using self_t     = lazy_seq_t::lazy_iterator;
-    using value_t    = ValueT;
+
   public:
-    lazy_iterator()
+    
+    using seq_t           = cpppc::lazy_sequence<T>; 
+    using self_t          = seq_t::iterator;
+    using value_t         = seq_t::value_t;
+    using reference       = seq_t::reference;
+    using const_reference = seq_t::const_reference;
+    using index_t         = seq_t::index_t;
+    
+    iterator()                               = default;
+    ~iterator()                              = default;
+    iterator(const self_t & other)           = default;
+    self_t & operator=(const self_t & other) = default;
+
+    iterator(const seq_t & container, index_t pos)
+    : _container(&container)
+    , _pos(pos)
+    {}
+
+    bool operator==(const self_t & rhs) const
+    {
+      return     (this       == &rhs) 
+             || ((_container == rhs._container)
+             &&  (_pos       == rhs._pos));
+    }
+
+    bool operator!=(const self_t & rhs) const
+    { 
+      return not (*this == rhs);
+    }
+
+    value_t operator*()
+    {
+      return _container->operator[](_pos);
+    }
+
+    const value_t operator*() const
+    {
+      return _container->operator[](_pos);
+    }
+
+    self_t & operator++()
+    {
+      ++_pos;
+      return *this;
+    }
+
+    self_t operator++(int)
+    {
+      self_t tmp(*this);
+      ++_pos;
+      return tmp;
+    }
 
   private:
-    size_t _pos;
-    value_t val; 
+    const seq_t * _container;
+    index_t       _pos;
   };
-*/
 
-  lazy_sequence() = delete;
+public:
 
-  lazy_sequence(int count)
-  : _generator(count)
-  , _functor([](value_t val)-> value_t {return val;})
-  {}
+  using iterator  = self_t::iterator;
 
-  /*
-  lazy_sequence(int count, std::function<value_t(value_t)>)
-  : _generator(std::enumerate(0,count))
-  */
+  lazy_sequence(int size, std::function<T(int)> generator)
+  : _size(size), _gen_fun(generator)
+  { }
+  value_t operator[](int index) const { return _gen_fun(index); }
+  iterator begin() { return iterator(*this, 0); }
+  const iterator end()   { return iterator(*this, this->size()); }
+
+  index_t size()
+  {
+    return _size;
+  }
   
-  lazy_sequence(int count, value_t val, std::function<value_t(value_t)> fun)
-  : _generator(count, val)
-  , _functor(fun)
-  {}
-
-  value_t operator[](size_type pos) { return _functor(_generator[pos]);}
-
-  auto begin() { return boost::make_transform_iterator(_generator.begin(), _functor);}
-
-  auto end()  { return boost::make_transform_iterator(_generator.end(), _functor);}
-
-  size_type size() { return _generator.size();} 
-
 private:
-  std::vector<value_t>              _generator;
-  std::function<value_t(value_t)>   _functor;
-
+  
+  index_t                   _size     = 0;
+  std::function<T(int)>     _gen_fun;
 };
+
+} // cpppc
 
 #endif // CPPPC__S04__LAZY_SEQUENCE_H__INCLUDED

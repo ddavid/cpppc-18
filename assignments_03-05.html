@@ -1,0 +1,61 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="generator" content="ReText 5.3.1">
+</head>
+<body>
+<h3>Assignment 3</h3>
+<h4>3-0-1</h4>
+<h5>ForwardIterator vs. RandomAccessIterator</h5>
+<p>Pointer arithmetic is not possible with Forward Iterators. Also, only post and preincrement ++ are available.
+RAIs have valid decrement operations and give random access to the underlying data - operator[];</p>
+<h5>InputIterator vs. OutputIterator</h5>
+<p>InputIterator only lets us read the dereferenced value. - std::iterator_traits<InputIterator>::value_type == const smth
+OutputIterator lets us write to the dereferenced value.</p>
+<h4>3-0-2</h4>
+<p>No questions</p>
+<h4>3-1-1</h4>
+<p>Unter <code>gottschlin_list.h</code> zu finden.
+<code>iterator_traits</code> nachträglich hinzugefügt.</p>
+<h4>3-1-2</h4>
+<p>Alle tests aus der Vector test suite sind erfolgreich gelaufen.
+In den letzten Zeilen von <code>list_test.cpp</code> auch <code>insert_after</code> - falls dies nicht die richtige Funktionsweise ist, sehr froh auf Hinweise...</p>
+<h4>3-2</h4>
+<p>No questions.
+Tests passed.</p>
+<h3>Assignment 4</h3>
+<h4>4-0</h4>
+<p>No questions.</p>
+<p>Talks watched, enjoyed both.</p>
+<h4>4-1-1</h4>
+<p>No questions.</p>
+<p>Implementation is more efficient for RAIs because of the use of std::advance().
+https://en.cppreference.com/w/cpp/iterator/advance </p>
+<blockquote>
+<p>Complexity</p>
+<p>linear.</p>
+<p>However, if InputIt additionally meets the requirements of RandomAccessIterator, complexity is constant. </p>
+</blockquote>
+<h4>4-1-2</h4>
+<p>No questions.</p>
+<h4>4-2-1</h4>
+<p>No questions.</p>
+<p>Still working on it.</p>
+<h4>4-2-2</h4>
+<p>No questions.</p>
+<p>Solved after hints in e-mail exchange. </p>
+<h3>Assignment 5</h3>
+<h4>5-1-0</h4>
+<p>No questions.</p>
+<p>Watched both talks, NRVO sticked after the first one. Small string optimization after the second one. Andrei Alxandrescu's talks are way more entertaining.</p>
+<h4>5-1-1</h4>
+<p>No questions.</p>
+<p>Included move constructor and assignment to <code>gottschling_list.h</code> and godbolt link with test.</p>
+<h4>5-1-2</h4>
+<p>No questions.</p>
+<p>Sparse array has no ownership, default move semantics work. Will only be able to validate with working <code>sparse_array.h</code></p>
+<h4>5-2</h4>
+<p>Not being color-blind makes it possible to see if move semantics work as expected, poor dogs.</p>
+</body>
+</html>

@@ -3,19 +3,20 @@
 #include "lazy-sequence.h"
 #include <iostream>
 
+using namespace cpppc;
+
 int main(int argc, char * argv[])
 {
   std::function<int(int)> example = [](int count){return count;};
   std::cout << example(20) << std::endl;
-  lazy_sequence<int> lazy(10, 5, example);
+  lazy_sequence<int> lazy(10, example);
 
   std::cout << lazy[5] << std::endl;
 
   std::cout << lazy.size() << std::endl;
 
-  lazy_sequence<int> seq(10, 20, [](int i) {return (100 + i * i);});
+  lazy_sequence<int> seq(10, [](int i) {return (100 + i * i);});
   std::cout << "sequence size: " << seq.size() << '\n';
-
   
   auto it = seq.begin();
   // still nothing computed

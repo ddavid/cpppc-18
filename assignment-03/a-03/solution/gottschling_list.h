@@ -26,6 +26,7 @@ class list
 
   class list_iterator
   {
+
     typedef
          list<ValueT, default_value>
          list_t;
@@ -38,9 +39,13 @@ class list
          list_t::list_iterator
          self_t;
 
-    using value_type = ValueT;
+public:
 
-  public:
+    using value_type        = ValueT;
+    using difference_type   = std::ptrdiff_t;
+    using pointer           = value_type *;
+    using reference         = value_type &;
+    using iterator_category = std::forward_iterator_tag;
 
     list_iterator()
     : _node(0)
@@ -66,14 +71,12 @@ class list
       return *this;
     }
 
-    /*
     self_t operator++(int)
     {
-      self_t old(*(*this));
+      self_t old = *this;
       _node = _node->next;
       return old;
     }
-    */
 
     bool operator==(const self_t & other) const
     {
@@ -87,7 +90,10 @@ class list
 
     private:
       list_node_t * _node;
+
   };
+
+public:
 
   typedef list<ValueT, default_value>             self_t;
   typedef ValueT                                  value_type;
@@ -95,9 +101,6 @@ class list
   typedef const typename self_t::list_iterator    const_list_iterator;
   typedef value_type                            & reference;
   typedef const value_type                      & const_reference;
-
-
-public:
 
   list()
   : _head(0)
