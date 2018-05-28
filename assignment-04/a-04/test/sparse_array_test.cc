@@ -21,8 +21,8 @@ TEST_F(SparseArrayTest, StandardConcept)
   constexpr size_t N = 1000 * NMULT;
 
   LOG_MESSAGE("SparseArrayTest.StandardConcept: default ctor");
-  sparse_array<int, N> sa1; //{ };
-  sparse_array<int, N> sa2; //{ };
+  sparse_array<int, N> sa1 { };
+  sparse_array<int, N> sa2 { };
 
   LOG_MESSAGE("SparseArrayTest.StandardConcept: ==");
   ASSERT_EQ(sa1, sa1);
@@ -44,7 +44,7 @@ TEST_F(SparseArrayTest, StandardConcept)
   ASSERT_EQ(55, sa1[500]);
 
   LOG_MESSAGE("SparseArrayTest.StandardConcept: =");
-  LOG_MESSAGE("OH WHY");
+  sa2 = sa1;
   ASSERT_EQ(sa1, sa2);
 
   ASSERT_EQ(44, sa2[400]);
@@ -74,7 +74,7 @@ TEST_F(SparseArrayTest, RandomAccess)
   *it  = 2340;
   ASSERT_EQ(it, std::find(sa.begin(), sa.end(), 2340));
 }
-/*
+
 TEST_F(SparseArrayTest, ArrayInterface)
 {
   LOG_MESSAGE("SparseArrayTest.ArrayInterface");
@@ -143,4 +143,3 @@ TEST_F(SparseArrayTest, ArrayInterface)
   LOG_MESSAGE("SparseArrayTest.ArrayInterface: sa2 = { %s }",
               range_to_string(sa2.begin(), sa2.begin() + 16).c_str());
 }
-*/

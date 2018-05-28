@@ -23,6 +23,7 @@ public:
     proxy_reference(sparse_array_t & sa, index_t offset)
       : _sa(sa), _index(offset)
     { }
+    proxy_reference(const self_t & rhs) = default;
 
     self_t & operator=(const value_type & rhs) 
     {
@@ -31,16 +32,20 @@ public:
     }
 
     // Type Cast Conversion
-    operator value_type() const
+    operator const_reference() const
     {
       //std::cout << "TYPE CAST CONVERSION" << std::endl;
-      return _sa[_index];
+      return _sa.at(_index);
     }
 
+    /*
     bool operator==(const value_type & other) const 
     {
-      return (*this == other);
+      return    (*this   == other)
+             || (_sa     == other._sa
+             && (_index  == other._index));
     }
+    */
 
   private:
     sparse_array_t & _sa;
@@ -79,17 +84,6 @@ public:
       return (*_sa)[_index];
     }
 
-    bool operator==(const self_t & rhs) const
-    {
-      return (this == &rhs) ||
-            ((_sa  == rhs._sa) && (_index == rhs._index));
-    }
-
-    bool operator!=(const self_t & rhs) const
-    { 
-      return not (*this == rhs);
-    }
-
     self_t operator+(index_t increment)
     { 
       return self_t(*_sa, (_index + increment));
@@ -114,15 +108,65 @@ public:
 
     self_t operator++(int)
     {
-      self_t result = _index;
+      self_t tmp = _index;
       ++_index;
-      return result;
+      return tmp;
+    }
+
+    self_t & operator--()
+    {
+      --_index;
+      return *this;
+    }
+
+    self_t operator--(int)
+    {
+      self_t tmp = _index;
+      --_index;
+      return tmp;
     }
 
     self_t & operator+=(index_t increment)
     {
       _index += increment;
       return *this;
+    }
+
+    self_t & operator-=(index_t decrement)
+    {
+      _index -= decrement;
+      return *this;
+    }
+
+    bool operator==(const self_t & rhs) const
+    {
+      return (this == &rhs) ||
+            ((_sa  == rhs._sa) && (_index == rhs._index));
+    }
+
+    bool operator!=(const self_t & rhs) const
+    { 
+      return not (*this == rhs);
+    }
+
+    bool operator<(const self_t & other) const
+    {
+      return _index < other._index;
+    }
+
+    bool operator<=(const self_t & other) const
+    {
+      return _index <= other._index;
+    }
+
+    bool operator>(const self_t & other) const
+    {
+      return !(*this <= other);
+    }
+
+    bool operator>=(const self_t & other) const
+    {
+      return !(*this < other);
     }
 
   private:
@@ -155,12 +199,12 @@ public:
 
 //------ El access -----//
 
-  const_reference at(index_t index)
+  const_reference at(index_t index) const
   {
     if (index < 0 || static_cast<int>(this->size()) <= index) {
       throw std::invalid_argument("index out of bounds");
     }
-    return _entries[index];
+    return this->find_entry_or_default(index);
   }
 
   reference operator[](int offset) {
@@ -169,8 +213,8 @@ public:
   }
 
   const_reference operator[](int offset) const {
-    std::cout << "CONST REF" << std::endl;
-    return find_entry_or_default(offset);
+    //std::cout << "CONST REF" << std::endl;
+    return this->find_entry_or_default(offset);
   }
 
   reference front(){ return *(this->begin());}
@@ -193,11 +237,11 @@ public:
 
   const_iterator end() const { return iterator(*this, N);}
 
-  reverse_iterator rbegin() { return reverse_iterator(*this, 0);}
+  reverse_iterator rbegin() { return iterator(*this, 0);}
 
   const_reverse_iterator crbegin() const { return this->rbegin();}
 
-  reverse_iterator rend() { return reverse_iterator(*this, N);}
+  reverse_iterator rend() { return iterator(*this, N);}
 
   const_reverse_iterator crend() const { return this->rend();}
 
@@ -288,12 +332,12 @@ private:
     _entries[pos] = val;
   }
 
-  const_reference find_entry_or_default(index_t pos) const
+  const_reference find_entry_or_default(const index_t & pos) const
   {
     //typename std::unordered_map<index_t, T>::const_iterator 
-    auto iter = std::find(pos, _entries);
+    auto iter = _entries.find(pos);
     if(iter == _entries.end()) { return _default;}
-    else return _entries[pos]; 
+    else return std::get<1>(*iter); 
   }
 
 private:
