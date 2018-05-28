@@ -13,7 +13,7 @@ class sparse_array {
 public:
   class proxy_reference {
     using sparse_array_t  = sparse_array<T,N>;
-    using value_type         = T;
+    using value_type      = T;
     using self_t          = proxy_reference;
     using const_reference = const value_type &;
 
@@ -39,13 +39,14 @@ public:
     }
 
     /*
-    bool operator==(const value_type & other) const 
+    bool operator==(const self_t & other) const 
     {
       return    (*this   == other)
              || (_sa     == other._sa
              && (_index  == other._index));
     }
     */
+    
 
   private:
     sparse_array_t & _sa;
@@ -81,7 +82,7 @@ public:
 
     const_reference operator*() const
     {
-      return (*_sa)[_index];
+      return _sa->at(_index);
     }
 
     self_t operator+(index_t increment)
@@ -174,6 +175,131 @@ public:
     index_t          _index; // = 0;
   };
 
+  class const_iterator :
+  public std::iterator<
+    std::random_access_iterator_tag,
+    const T,
+    index_t,
+    const T *,
+    const T &
+  >{
+  public: 
+    
+    using sparse_array_t    = sparse_array<T,N>;
+    //using index_t           = int;
+    using self_t            = typename sparse_array_t::const_iterator; 
+    using const_reference   = const T &;
+
+    const_iterator() = default;  // Yes, because both default initializations are correct.
+    const_iterator(const sparse_array_t & sa, index_t offset)
+    : _sa(&sa), _index(offset)
+    { }
+
+    ~const_iterator() = default; // Default behaviour is what we want here. 
+    
+    // We (can) only read from const_iterator
+    /*
+    proxy_reference operator*() 
+    {
+      return (*_sa)[_index];
+    }
+    */
+
+    const_reference operator*() const
+    {
+      return _sa->at(_index);
+    }
+
+    self_t operator+(index_t increment)
+    { 
+      return self_t(*_sa, (_index + increment));
+    }
+
+    self_t operator-(index_t decrement)
+    {
+      return self_t(*_sa, (_index - decrement));
+    }
+
+    // difference_type
+    index_t operator-(const self_t & rhs)
+    {
+      return index_t(_index - rhs._index);
+    }
+
+    self_t & operator++()
+    {
+      ++_index;
+      return *this;
+    }
+
+    self_t operator++(int)
+    {
+      self_t tmp = _index;
+      ++_index;
+      return tmp;
+    }
+
+    self_t & operator--()
+    {
+      --_index;
+      return *this;
+    }
+
+    self_t operator--(int)
+    {
+      self_t tmp = _index;
+      --_index;
+      return tmp;
+    }
+
+    self_t & operator+=(index_t increment)
+    {
+      _index += increment;
+      return *this;
+    }
+
+    self_t & operator-=(index_t decrement)
+    {
+      _index -= decrement;
+      return *this;
+    }
+
+    bool operator==(const self_t & rhs) const
+    {
+      return (this == &rhs) ||
+            ((_sa  == rhs._sa) && (_index == rhs._index));
+    }
+
+    bool operator!=(const self_t & rhs) const
+    { 
+      return not (*this == rhs);
+    }
+
+    bool operator<(const self_t & other) const
+    {
+      return _index < other._index;
+    }
+
+    bool operator<=(const self_t & other) const
+    {
+      return _index <= other._index;
+    }
+
+    bool operator>(const self_t & other) const
+    {
+      return !(*this <= other);
+    }
+
+    bool operator>=(const self_t & other) const
+    {
+      return !(*this < other);
+    }
+
+  private:
+    const sparse_array_t * _sa;    // = nullptr
+    index_t                _index; // = 0;
+  };
+
 public:
 
   using value_type             = T;
@@ -185,7 +311,7 @@ public:
   using pointer                = value_type *;
   using const_pointer          = const value_type *;
   using iterator               = sparse_array::iterator;
-  using const_iterator         = const sparse_array::iterator;
+  using const_iterator         = sparse_array::const_iterator;
   using reverse_iterator       = std::reverse_iterator<iterator>;
   using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
@@ -202,6 +328,7 @@ public:
   const_reference at(index_t index) const
   {
     if (index < 0 || static_cast<int>(this->size()) <= index) {
+      std::cout << "This index is out of bounds: " << index << std::endl;
       throw std::invalid_argument("index out of bounds");
     }
     return this->find_entry_or_default(index);
@@ -221,33 +348,33 @@ public:
 
   const_reference front() const { return *(this->begin());}
 
-  reference back() { return *( iterator(*this, (this->size() - 1)));}
+  reference back() { return *(this->end() - 1);}
 
-  const_reference back() const { return *( iterator(*this, (this->size() - 1)));}
+  const_reference back() const { return *(this->end() - 1);}
 
 //------ Iterators ------//
 
   iterator begin() { return iterator(*this, 0);}
 
-  const_iterator cbegin() const { return this->begin();}
+  const_iterator cbegin() const { return const_iterator(*this, 0);}
 
   iterator end() { return iterator(*this, N);}
 
-  const_iterator cend() const { return this->end();}
+  const_iterator cend() const { return const_iterator(*this, N);}
 
   const_iterator end() const { return iterator(*this, N);}
 
-  reverse_iterator rbegin() { return iterator(*this, 0);}
+  reverse_iterator rbegin() { return reverse_iterator(end());}
 
-  const_reverse_iterator crbegin() const { return this->rbegin();}
+  const_reverse_iterator crbegin() const { return const_reverse_iterator(end());}
 
-  reverse_iterator rend() { return iterator(*this, N);}
+  reverse_iterator rend() { return reverse_iterator(begin());}
 
-  const_reverse_iterator crend() const { return this->rend();}
+  const_reverse_iterator crend() const { return const_reverse_iterator(begin());}
 
 //----- Capacity ------//
 
-  bool empty() const { return _entries.empty();}
+  bool empty() const { return !(size() > 0);}
 
   size_type size() const noexcept { return N;}
 
@@ -258,14 +385,17 @@ public:
   void fill(const_reference val)
   {
     iterator iter = begin();
+    std::cout << "Started filling sparse_array" << std::endl;
     while(iter != end())
     {
       *iter = val;
+      ++iter;
     }
+    std::cout << "Finished filling sparse_array" << std::endl;
   }
   // Exchanges the contents of the container with those of other. 
   // Does not cause iterators and references to associate with the other container.
-  void swap(self_t & other) 
+  /*void swap(self_t & other) 
   {
     // For std::array, walk through both arrays applying std::swap?
     // reference doesn't say anything about sizes of both arrays
@@ -279,7 +409,7 @@ public:
         }
       }
     }
-  }
+  }*/
 
 //------ Non-member Functions -------//
 
@@ -297,22 +427,34 @@ public:
 
   bool operator<(const self_t & other) const
   {
-    return (size() < other.size());
-  }
-
-  bool operator<=(const self_t & other) const
-  {
-    return (size() <= other.size());
+    return std::lexicographical_compare(
+      cbegin(),
+      cend(), 
+      other.cbegin(),
+      other.cend());
   }
 
   bool operator>(const self_t & other) const
   {
-    return (size() > other.size());
+    return std::lexicographical_compare(
+      cbegin(),
+      cend(), 
+      other.cbegin(),
+      other.cend(),
+      [](const value_type fst, const value_type snd) -> bool 
+      { 
+        return fst > snd;
+      });
+  }
+
+  bool operator<=(const self_t & other) const
+  {
+    return !(*this > other);
   }
 
   bool operator>=(const self_t & other) const
   {
-    return (size() >= other.size());
+    return !(*this < other);
   }
   
   /*
