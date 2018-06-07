@@ -8,189 +8,176 @@ namespace cpppc {
 template <class T, std::size_t N>
 class sparse_array;
 
-template <class SparseArray>
-class sparse_array_proxy_ref {
-  using self_t          = sparse_array_proxy_ref<SparseArray>;
-  using index_t         = typename SparseArray::index_t;
-  
-public:
-  using sparse_array_t  = SparseArray;
-  using value_type      = typename SparseArray::value_type;
-  using const_reference = const value_type &;
-
-public:
-  sparse_array_proxy_ref() = delete;
-  sparse_array_proxy_ref(sparse_array_t & sa, index_t offset)
-    : _sa(sa), _index(offset)
-  { }
-  sparse_array_proxy_ref(const self_t & rhs) = default;
-
-  self_t & operator=(const value_type & rhs) 
-  {
-    _sa.set_value(_index, rhs);
-    return *this;
-  }
-
-  // Type Cast Conversion
-  operator value_type() const
-  {
-    //std::cout << "TYPE CAST CONVERSION" << std::endl;
-    return _sa.at(_index);
-  }
-  /*
-  // Type Cast Conversion
-  operator const value_type &() const
-  {
-    std::cout << "Const TYPE CAST CONVERSION" << std::endl;
-    return _sa[_index];
-  }*/
-
-private:
-  sparse_array_t & _sa;
-  index_t          _index;
-};
-
-template <class SparseArray>
-class sparse_array_iterator :
-public std::iterator<
-  std::random_access_iterator_tag,
-  typename SparseArray::value_type,
-  typename SparseArray::index_t,
-  typename SparseArray::pointer,
-  sparse_array_proxy_ref<SparseArray> >{
-public: 
-  
-  using sparse_array_t    = SparseArray;
-  using self_t            = sparse_array_iterator<SparseArray>; 
-  
-  using index_t           = typename std::iterator_traits<self_t>::difference_type;
-
-  using reference         = sparse_array_proxy_ref<SparseArray>;
-  using const_reference   = const typename SparseArray::value_type &;
-
-  sparse_array_iterator() = default;  // Yes, because both default initializations are correct.
-  sparse_array_iterator(sparse_array_t & sa, index_t offset)
-  : _sa(&sa), _index(offset)
-  { }
-
-  ~sparse_array_iterator() = default; // Default behaviour is what we want here. 
-
-  reference operator*() 
-  {
-    return (*_sa)[_index];
-  }
-
-  const_reference operator*() const
-  {
-    return _sa->at(_index);
-  }
-
-  self_t operator+(index_t increment)
-  { 
-    return self_t(*_sa, (_index + increment));
-  }
-
-  self_t operator-(index_t decrement)
-  {
-    return self_t(*_sa, (_index - decrement));
-  }
-
-  // difference_type
-  index_t operator-(const self_t & rhs)
-  {
-    return index_t(_index - rhs._index);
-  }
-
-  self_t & operator++()
-  {
-    ++_index;
-    return *this;
-  }
-
-  self_t operator++(int)
-  {
-    self_t tmp = _index;
-    ++_index;
-    return tmp;
-  }
-
-  self_t & operator--()
-  {
-    --_index;
-    return *this;
-  }
-
-  self_t operator--(int)
-  {
-    self_t tmp = _index;
-    --_index;
-    return tmp;
-  }
-
-  self_t & operator+=(index_t increment)
-  {
-    _index += increment;
-    return *this;
-  }
-
-  self_t & operator-=(index_t decrement)
-  {
-    _index -= decrement;
-    return *this;
-  }
-
-  bool operator==(const self_t & rhs) const
-  {
-    return (this == &rhs) ||
-          ((_sa  == rhs._sa) && (_index == rhs._index));
-  }
-
-  bool operator!=(const self_t & rhs) const
-  { 
-    return not (*this == rhs);
-  }
-
-  bool operator<(const self_t & other) const
-  {
-    return _index < other._index;
-  }
-
-  bool operator<=(const self_t & other) const
-  {
-    return _index <= other._index;
-  }
-
-  bool operator>(const self_t & other) const
-  {
-    return !(*this <= other);
-  }
-
-  bool operator>=(const self_t & other) const
-  {
-    return !(*this < other);
-  }
-
-private:
-  sparse_array_t * _sa;    // = nullptr
-  index_t          _index; // = 0;
-};  
-
 template <class T, std::size_t N>
 class sparse_array {
+
+  using index_t = int;
+
+public:
+  template <class SparseArray>
+  class proxy_reference {
+    using self_t          = proxy_reference<SparseArray>;
+
+    using sparse_array_t  = SparseArray;
+    using value_type      = typename SparseArray::value_type;
+    using const_reference = const value_type &;
+
+  public:
+
+    proxy_reference() = delete;
+    proxy_reference(sparse_array_t & sa, index_t offset)
+      : _sa(sa), _index(offset)
+    { }
+    proxy_reference(const self_t & rhs) = default;
+
+    self_t & operator=(const value_type & rhs) 
+    {
+      _sa.set_value(_index, rhs);
+      return *this;
+    }
+
+    // Type Cast Conversion
+    operator const_reference() const
+    {
+      //std::cout << "TYPE CAST CONVERSION" << std::endl;
+      return _sa.at(_index);
+    }
+
+  private:
+    sparse_array_t & _sa;
+    index_t          _index;
+  };
+
+  template <class SparseArray>
+  class iterator :
+          public std::iterator<
+            std::random_access_iterator_tag,
+            T,
+            index_t,
+            T *,
+            proxy_reference >
+  {
+  public:
+    using sparse_array_t    = SparseArray;
+    using self_t            = typename iterator<SparseArray>
+
+    iterator() = default;  // Yes, because both default initializations are correct.
+    iterator(sparse_array_t & sa, index_t offset)
+    : _sa(&sa), _index(offset)
+    { }
+
+    ~iterator() = default; // Default behaviour is what we want here. 
+
+    proxy_reference operator*() 
+    {
+      return (*_sa)[_index];
+    }
+
+    const_reference operator*() const
+    {
+      return _sa->at(_index);
+    }
+
+    self_t operator+(index_t increment)
+    { 
+      return self_t(*_sa, (_index + increment));
+    }
+
+    self_t operator-(index_t decrement)
+    {
+      return self_t(*_sa, (_index - decrement));
+    }
+
+    // difference_type
+    index_t operator-(const self_t & rhs)
+    {
+      return index_t(_index - rhs._index);
+    }
+
+    self_t & operator++()
+    {
+      ++_index;
+      return *this;
+    }
+
+    self_t operator++(int)
+    {
+      self_t tmp = _index;
+      ++_index;
+      return tmp;
+    }
+
+    self_t & operator--()
+    {
+      --_index;
+      return *this;
+    }
+
+    self_t operator--(int)
+    {
+      self_t tmp = _index;
+      --_index;
+      return tmp;
+    }
+
+    self_t & operator+=(index_t increment)
+    {
+      _index += increment;
+      return *this;
+    }
+
+    self_t & operator-=(index_t decrement)
+    {
+      _index -= decrement;
+      return *this;
+    }
+
+    bool operator==(const self_t & rhs) const
+    {
+      return (this == &rhs) ||
+            ((_sa  == rhs._sa) && (_index == rhs._index));
+    }
+
+    bool operator!=(const self_t & rhs) const
+    { 
+      return not (*this == rhs);
+    }
+
+    bool operator<(const self_t & other) const
+    {
+      return _index < other._index;
+    }
+
+    bool operator<=(const self_t & other) const
+    {
+      return _index <= other._index;
+    }
+
+    bool operator>(const self_t & other) const
+    {
+      return !(*this <= other);
+    }
+
+    bool operator>=(const self_t & other) const
+    {
+      return !(*this < other);
+    }
+
+  private:
+    sparse_array_t * _sa;    // = nullptr
+    index_t          _index; // = 0;
+  };
 
   using self_t                 = sparse_array<T, N>;
 
 public:
-
-  using index_t                = int;
-
   using value_type             = T;
   using size_type              = std::size_t;
   using difference_type        = std::ptrdiff_t;
-  
+
   using reference              = sparse_array_proxy_ref<self_t>;
   using const_reference        = const value_type &;
-  
+
   using pointer                = value_type *;
   using const_pointer          = const value_type *;
 
@@ -220,7 +207,7 @@ public:
 
   reference operator[](int offset) {
     //std::cout << "PROXY REF" << std::endl;
-    return reference(*this, offset);
+    return proxy_reference(*this, offset);
   }
 
   const_reference operator[](int offset) const {
@@ -313,7 +300,7 @@ public:
   {
     return std::lexicographical_compare(
       cbegin(),
-      cend(), 
+      cend(),
       other.cbegin(),
       other.cend());
   }
@@ -322,11 +309,11 @@ public:
   {
     return std::lexicographical_compare(
       cbegin(),
-      cend(), 
+      cend(),
       other.cbegin(),
       other.cend(),
-      [](const_reference fst, const_reference snd) -> bool 
-      { 
+      [](const value_type fst, const value_type snd) -> bool
+      {
         return fst > snd;
       });
   }
@@ -340,7 +327,7 @@ public:
   {
     return !(*this < other);
   }
-  
+
   /*
   template<typename Index>
   reference get<Index>(const self_t & arr)
@@ -350,13 +337,13 @@ public:
 
   void swap
   */
-  
+
+private:
+
   void set_value(index_t pos, value_type val)
   {
     _entries[pos] = val;
   }
-
-private:
 
   const_reference find_entry_or_default(const index_t & pos) const
   {

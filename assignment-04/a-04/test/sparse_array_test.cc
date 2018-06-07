@@ -124,7 +124,7 @@ TEST_F(SparseArrayTest, ArrayInterface)
   ASSERT_EQ(sa1, sa2);
 
   sa2[sa2.size() / 2] = 0;
-  
+///*  
   ASSERT_LT(sa2, sa1);
   ASSERT_GT(sa1, sa2);
 
@@ -133,9 +133,9 @@ TEST_F(SparseArrayTest, ArrayInterface)
   ASSERT_EQ(1, (sa1 > sa2));
 
   sa2.fill(std::numeric_limits<int>::max());
-
-  int idx;
 /*
+  int idx;
+
   idx = 2;
   std::generate_n(sa2.begin() + 220, 16,
                   [&]() { return idx *= 2; });
@@ -151,7 +151,7 @@ TEST_F(SparseArrayTest, ArrayInterface)
   std::for_each(sa2.begin(),
                 sa2.begin() + 16,
                 [&](int v) { ASSERT_EQ(idx *= 2, v); });
-/**/
+*/
   LOG_MESSAGE("SparseArrayTest.ArrayInterface: sa2 = { %s }",
               range_to_string(sa2.begin(), sa2.begin() + 16).c_str());
 }
