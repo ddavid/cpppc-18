@@ -4,6 +4,8 @@
 #include <test/TestBase.h>
 #include <iterator>
 
+#include "crtp.h"
+
 namespace cpppc 
 {
 
@@ -24,73 +26,27 @@ class list
     list_node         * next;
   };
 
-  class list_iterator
+  class list_iterator : public ForwardIteratorBase
+  <
+    typename list::list_iterator,
+    ValueT
+  >
   {
+    typedef ValueT value_type;
 
-    typedef
-         list<ValueT, default_value>
-         list_t;
+    public:
+      ValueT & dereference()
+      {
+        return _node->value;
+      }
 
-    typedef typename
-         list_t::list_node
-         list_node_t;
-         
-    typedef typename
-         list_t::list_iterator
-         self_t;
-
-public:
-
-    using value_type        = ValueT;
-    using difference_type   = std::ptrdiff_t;
-    using pointer           = value_type *;
-    using reference         = value_type &;
-    using iterator_category = std::forward_iterator_tag;
-
-    list_iterator()
-    : _node(0)
-    {}
-
-    list_iterator(list_node_t * node)
-    : _node(node)
-    {}
-
-    self_t & operator=(const self_t & rhs)
-    {
-      if(_node) { std::free(_node); }
-      _node = new list_node_t{ rhs._node->value, rhs._node->next };
-    }
-
-    value_type & operator*() { return _node->value; }
-
-    const value_type & operator*() const { return _node->value; }
-
-    self_t & operator++()
-    {
-      _node = _node->next;
-      return *this;
-    }
-
-    self_t operator++(int)
-    {
-      self_t old = *this;
-      _node = _node->next;
-      return old;
-    }
-
-    bool operator==(const self_t & other) const
-    {
-      return !(*this != other);
-    }
-
-    bool operator!=(const self_t & other) const
-    {
-      return _node != other._node;
-    }
+      const ValueT & dereference() const
+      {
+        return _node->value;
+      }
 
     private:
-      list_node_t * _node;
-
+      list_node * _node = 0;  
   };
 
 public:
