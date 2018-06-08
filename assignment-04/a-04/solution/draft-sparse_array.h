@@ -94,7 +94,7 @@ public:
 
   const_reference operator*() const
   {
-    return _sa->at(_index);
+    return (*_sa)[_index];
   }
 
   self_t operator+(index_t increment)
