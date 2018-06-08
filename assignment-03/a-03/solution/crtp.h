@@ -16,29 +16,14 @@ template <
 class ForwardIteratorBase
 {
 
-  struct list_node
-  {
-    list_node(const ValueType & val)
-    : value(val)
-    , next(0)
-    {}
-
-    ValueType              value;
-    list_node             * next;
-  };
-
   typedef ForwardIteratorBase<
             IteratorType,
             ValueType,
             IndexType,
             Pointer,
             Reference >          self_t;
-
-
   
   typedef IteratorType           derived_t;
- private:
-  list_node * _node;
 
  private:
   derived_t & derived() {
@@ -60,18 +45,12 @@ class ForwardIteratorBase
 
  public:
   
-  ForwardIteratorBase()
-  : _node(0)
-  {}
+  ForwardIteratorBase()                = default;
   ForwardIteratorBase(self_t &&)       = default;
   ForwardIteratorBase(const self_t &)  = default;
   ~ForwardIteratorBase()               = default;
   self_t & operator=(self_t &&)        = default;
   self_t & operator=(const self_t &)   = default;
-
-  ForwardIteratorBase(list_node * node)
-    : _node(node)
-    {}
 
   reference operator*() {
     return derived().dereference();
@@ -86,22 +65,24 @@ class ForwardIteratorBase
   }
 
   derived_t & operator++() {
-    _node = _node->next;
+    derived().advance(1);
     return derived();
   }
 
   derived_t operator++(int) {
-    derived_t old = *this;
-    _node = _node->next;
+    derived_t old = derived();
+    derived().advance(1);
     return old;
   }
 
-  constexpr bool operator==(const derived_t & rhs) const {
-    return _node == rhs._node;
-  }
-
-  constexpr bool operator!=(const derived_t & rhs) const {
-    return _node != rhs._node;
+  void advance(const difference_type steps)
+  {
+    int i = 0;
+    while( i != steps )
+    {
+      derived().increment();
+      ++i;
+    }
   }
 };
 

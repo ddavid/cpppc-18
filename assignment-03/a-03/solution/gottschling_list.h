@@ -32,9 +32,28 @@ class list
     ValueT
   >
   {
+
+  private:
+
+    typedef list::list_iterator self_t;
+
+  public:
+
     typedef ValueT value_type;
 
     public:
+
+      list_iterator() = default;
+
+      list_iterator(list_node * node)
+      : _node(node)
+      {}
+
+      void increment()
+      {
+        _node = _node->next;
+      }
+
       ValueT & dereference()
       {
         return _node->value;
@@ -43,6 +62,16 @@ class list
       const ValueT & dereference() const
       {
         return _node->value;
+      }
+
+      bool operator==(const self_t & rhs) const 
+      {
+        return _node == rhs._node;
+      }
+
+      bool operator!=(const self_t & rhs) const 
+      {
+        return _node != rhs._node;
       }
 
     private:

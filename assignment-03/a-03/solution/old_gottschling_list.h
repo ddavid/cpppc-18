@@ -4,8 +4,6 @@
 #include <test/TestBase.h>
 #include <iterator>
 
-#include "crtp.h"
-
 namespace cpppc 
 {
 
@@ -50,7 +48,7 @@ public:
     using iterator_category = std::forward_iterator_tag;
 
     list_iterator()
-    : _node(0)
+    : _node(nullptr)
     {}
 
     list_iterator(list_node_t * node)
@@ -91,7 +89,7 @@ public:
     }
 
     private:
-      list_node_t * _node;
+      list_node_t * _node = nullptr;
 
   };
 
@@ -105,8 +103,7 @@ public:
   typedef const value_type                      & const_reference;
 
   list()
-  : _head(0)
-  , _tail(nullptr)
+  : _head(nullptr)
   {}
 
   list(int count, value_type val = default_value)
@@ -294,7 +291,6 @@ public:
 
 private:
   list_node * _head;
-  list_node * _tail;
 };
 } // namespace cpppc
 

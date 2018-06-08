@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <iterator>
 #include <array>
+#include <vector>
 
 // you might want to set this to 1 for debugging
 constexpr int NMULT = 1;
@@ -124,7 +125,13 @@ TEST_F(SparseArrayTest, ArrayInterface)
   ASSERT_EQ(sa1, sa2);
 
   sa2[sa2.size() / 2] = 0;
-///*  
+
+  std::vector<bool> vb(10, true);
+  std::vector<bool> vb2(vb);
+  vb[5] = false;
+
+  ASSERT_LT(vb, vb2);
+
   ASSERT_LT(sa2, sa1);
   ASSERT_GT(sa1, sa2);
 

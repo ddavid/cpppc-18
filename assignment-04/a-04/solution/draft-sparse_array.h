@@ -25,7 +25,19 @@ public:
   { }
   sparse_array_proxy_ref(const self_t & rhs) = default;
 
-  self_t & operator=(const value_type & rhs) 
+  //sparse_array_proxy_ref(const value_type rhs) = default;
+
+  self_t & operator=(const self_t & rhs) 
+  {
+    if( this != &rhs )
+    {
+      _sa     = rhs._sa;
+      _index  = rhs._index;
+    }
+    return *this;
+  }
+
+  self_t & operator=(const value_type rhs) 
   {
     _sa.set_value(_index, rhs);
     return *this;
